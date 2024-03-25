@@ -3,7 +3,7 @@ use sqlx::{MySql, Pool};
 
 use crate::error::{self, Error, Result};
 
-use super::token::Token;
+use super::{exercise::Exercise, token::Token};
 
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct User {
@@ -57,5 +57,9 @@ impl User {
 
     pub async fn tokens(&self, db: &Pool<MySql>) -> Result<Vec<Token>> {
         Token::find_all_by_user_id(db, self.id.clone()).await
+    }
+
+    pub async fn exercises(&self, db: &Pool<MySql>) -> Result<Vec<Exercise>> {
+        Exercise::find_all_by_user_id(db, self.id.clone()).await
     }
 }

@@ -1,3 +1,4 @@
+use axum::routing::get;
 use axum::{
     extract::State,
     http::StatusCode,
@@ -14,6 +15,7 @@ use crate::middlewares::auth::require_auth;
 pub fn router(state: ApiState) -> Router {
     Router::new()
         .route("/api/exercises", post(create_exercise))
+        .route("/api/exercises", get(get_exercises))
         .route_layer(middleware::from_fn_with_state(state.clone(), require_auth))
         .with_state(state)
 }
@@ -30,5 +32,17 @@ async fn create_exercise(
     Ok((
         StatusCode::CREATED,
         Json(exercice),
+    ))
+}
+
+async fn get_exercises(
+    State(state): State<ApiState>,
+    ctx: Ctx,
+) -> Result<(StatusCode, Json<Vec<Exercise>>)> {
+    let exercises = ctx.user().exercises(&state.db).await?;
+
+    Ok((
+        StatusCode::CREATED,
+        Json(exercises),
     ))
 }
