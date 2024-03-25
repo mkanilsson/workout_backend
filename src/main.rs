@@ -16,7 +16,6 @@ struct ApiState {
 
 #[tokio::main]
 async fn main() {
-
     let pool = MySqlPoolOptions::new()
         .max_connections(5)
         .connect("mysql://root:root@localhost/workout")
@@ -28,7 +27,9 @@ async fn main() {
     let state = ApiState { db: pool };
     let layer = Router::new();
 
-    let app = layer.merge(routes::auth::router(state));
+    let app = layer
+        .merge(routes::exercise::router(state.clone()))
+        .merge(routes::auth::router(state.clone()));
 
     let listner = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listner, app).await.unwrap();
