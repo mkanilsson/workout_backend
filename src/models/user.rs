@@ -3,7 +3,7 @@ use sqlx::{MySql, Pool};
 
 use crate::error::{self, Error, Result};
 
-use super::{exercise::Exercise, token::Token};
+use super::{exercise::Exercise, token::Token, workout::Workout};
 
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct User {
@@ -61,5 +61,13 @@ impl User {
 
     pub async fn exercises(&self, db: &Pool<MySql>) -> Result<Vec<Exercise>> {
         Exercise::find_all_by_user_id(db, self.id.clone()).await
+    }
+
+    pub async fn workouts(&self, db: &Pool<MySql>) -> Result<Vec<Workout>> {
+        Workout::find_all_done_by_user_id(db, self.id.clone()).await
+    }
+
+    pub async fn current_workout(&self, db: &Pool<MySql>) -> Result<Option<Workout>> {
+        Workout::find_current_by_user_id(db, self.id.clone()).await
     }
 }

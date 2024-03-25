@@ -29,6 +29,7 @@ async fn main() {
 
     let app = layer
         .merge(routes::exercise::router(state.clone()))
+        .merge(routes::workout::router(state.clone()))
         .merge(routes::auth::router(state.clone()));
 
     let listner = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();

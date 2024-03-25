@@ -1,0 +1,9 @@
+CREATE TABLE workout(
+  id VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
+  user_id VARCHAR(36) NOT NULL,
+  status ENUM('ongoing', 'done') NOT NULL DEFAULT 'ongoing',
+  created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
