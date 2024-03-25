@@ -1,43 +1,34 @@
-
 use axum::Router;
-use models::{token::Token, user::User};
-use mongodb::{
-    options::ClientOptions,
-    Client, Database,
-};
+use sqlx::{mysql::MySqlPoolOptions, MySql, Pool};
 
+mod ctx;
 mod dtos;
 mod error;
 mod helpers;
+mod middlewares;
 mod models;
 mod routes;
-mod middlewares;
-mod ctx;
 
 #[derive(Clone)]
 struct ApiState {
-    db: Database,
+    db: Pool<MySql>,
 }
 
 #[tokio::main]
 async fn main() {
-    let mut client_options = ClientOptions::parse("mongodb://localhost:27017")
+
+    let pool = MySqlPoolOptions::new()
+        .max_connections(5)
+        .connect("mysql://root:root@localhost/workout")
         .await
         .unwrap();
 
-    client_options.app_name = Some("AndrasWorkout".to_string());
-    let client = Client::with_options(client_options).unwrap();
+    sqlx::migrate!("./migrations").run(&pool).await.unwrap();
 
-    let database = client.database("workout");
-
-    Token::create_indexes(&database).await;
-    User::create_indexes(&database).await;
-
-    let state = ApiState { db: database };
+    let state = ApiState { db: pool };
     let layer = Router::new();
 
-    let app = layer
-        .merge(routes::auth::router(state));
+    let app = layer.merge(routes::auth::router(state));
 
     let listner = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listner, app).await.unwrap();

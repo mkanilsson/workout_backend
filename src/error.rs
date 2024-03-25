@@ -12,15 +12,15 @@ pub enum AuthError {
 
 #[derive(Debug)]
 pub enum Error {
-    MongoDB(mongodb::error::Error),
+    Sql(sqlx::error::Error),
     AuthError(AuthError),
     NotFound(String),
     Other(String),
     WTF(String),
 }
 
-pub fn from_mongodb_error(err: mongodb::error::Error) -> Error {
-    Error::MongoDB(err)
+pub fn from_sqlx_error(err: sqlx::error::Error) -> Error {
+    Error::Sql(err)
 }
 
 impl Error {
@@ -29,7 +29,7 @@ impl Error {
             Self::AuthError(AuthError::EmailAlreadyInUse(_)) => StatusCode::CONFLICT,
             Self::AuthError(AuthError::LoginFailed) => StatusCode::UNAUTHORIZED,
             Self::AuthError(AuthError::InvalidToken) => StatusCode::UNAUTHORIZED,
-            Self::MongoDB(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::Sql(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::NotFound(_) => StatusCode::NOT_FOUND,
             Self::Other(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::WTF(_) => StatusCode::INTERNAL_SERVER_ERROR,
@@ -42,7 +42,7 @@ impl Error {
             Self::AuthError(AuthError::InvalidToken) => "Missing token",
             Self::AuthError(AuthError::EmailAlreadyInUse(_)) => "Email already in use",
             Self::NotFound(_) => "Not Found",
-            Self::MongoDB(_) | Self::Other(_) | Self::WTF(_) => "Internal server error",
+            Self::Sql(_) | Self::Other(_) | Self::WTF(_) => "Internal server error",
         }
     }
 }

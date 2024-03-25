@@ -1,9 +1,8 @@
-use mongodb::bson::{serde_helpers::serialize_bson_datetime_as_rfc3339_string, DateTime};
+use chrono::Utc;
 
 use crate::models::user::User;
 
 #[derive(serde::Deserialize, serde::Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct CreateUserPayload {
     pub email: String,
     pub password: String,
@@ -12,15 +11,11 @@ pub struct CreateUserPayload {
 pub type LoginPayload = CreateUserPayload;
 
 #[derive(serde::Deserialize, serde::Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct UserResponse {
-    #[serde(rename(serialize = "_id", deserialize = "_id"))]
     id: String,
     email: String,
-    #[serde(serialize_with = "serialize_bson_datetime_as_rfc3339_string")]
-    created_at: DateTime,
-    #[serde(serialize_with = "serialize_bson_datetime_as_rfc3339_string")]
-    updated_at: DateTime,
+    created_at: chrono::DateTime<Utc>,
+    updated_at: chrono::DateTime<Utc>,
 }
 
 impl From<User> for UserResponse {
@@ -35,7 +30,6 @@ impl From<User> for UserResponse {
 }
 
 #[derive(serde::Deserialize, serde::Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
 pub struct LoginResponse {
     pub token: String,
     pub user: UserResponse,
