@@ -8,6 +8,7 @@ mod helpers;
 mod middlewares;
 mod models;
 mod routes;
+mod seeder;
 
 #[derive(Clone)]
 struct ApiState {
