@@ -94,12 +94,12 @@ mod tests {
         counter_rotation_workout2.add_set(&pool, 23.0, 19.5, SetType::Normal).await.expect("Failed to add warmup3 to counter rotation workout2");
         tokio::time::sleep(Duration::from_secs(1)).await;
 
-        let running_workout2 = ExerciseWorkout::create(&pool, user.id.clone(), running.id.clone(), workout1.id.clone()).await.expect("Failed to add 'bench press' to 'workout2'");
+        let running_workout2 = ExerciseWorkout::create(&pool, user.id.clone(), running.id.clone(), workout2.id.clone()).await.expect("Failed to add 'bench press' to 'workout2'");
         tokio::time::sleep(Duration::from_secs(1)).await;
         running_workout2.add_set(&pool, 1.0, 7.0 * 60.0 + 29.0, SetType::Normal).await.expect("Failed to add normal1 to running workout2");
         tokio::time::sleep(Duration::from_secs(1)).await;
 
-        let bench_press_workout2 = ExerciseWorkout::create(&pool, user.id.clone(), squats.id.clone(), workout2.id.clone()).await.expect("Failed to add 'bench press' to 'workout2'");
+        let bench_press_workout2 = ExerciseWorkout::create(&pool, user.id.clone(), bench_press.id.clone(), workout2.id.clone()).await.expect("Failed to add 'bench press' to 'workout2'");
         tokio::time::sleep(Duration::from_secs(1)).await;
         bench_press_workout2.add_set(&pool, 20.0, 12.0, SetType::Warmup).await.expect("Failed to add warmup1 to benchpress workout2");
         tokio::time::sleep(Duration::from_secs(1)).await;
