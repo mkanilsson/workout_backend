@@ -1,5 +1,3 @@
-use std::sync::RwLockWriteGuard;
-
 use axum::extract::Path;
 use axum::routing::{get, put};
 use axum::{extract::State, http::StatusCode, middleware, routing::post, Json, Router};
@@ -12,6 +10,7 @@ use crate::models::exercise_workout::ExerciseWorkout;
 use crate::{ctx::Ctx, error::Result, models::workout::Workout, ApiState};
 
 pub fn router(state: ApiState) -> Router {
+    // TODO: change `/current` to `/:id` and add special case for current
     Router::new()
         .route("/api/workouts", post(create_workout))
         .route("/api/workouts", get(get_done_workouts)) // Old
