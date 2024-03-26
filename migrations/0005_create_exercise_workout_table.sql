@@ -7,7 +7,7 @@ CREATE TABLE exercise_workout(
   created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-  FOREIGN KEY (user_id) REFERENCES users(id),
-  FOREIGN KEY (exercise_id) REFERENCES exercises(id),
-  FOREIGN KEY (workout_id) REFERENCES workout(id)
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE,
+  FOREIGN KEY (workout_id) REFERENCES workout(id) ON DELETE CASCADE
 );
