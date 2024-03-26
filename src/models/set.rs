@@ -1,4 +1,4 @@
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use sqlx::{MySql, Pool};
 
 use crate::error::{self, Error, Result};
@@ -90,7 +90,7 @@ impl Set {
         )
     }
 
-    pub async fn save(&self, db: &Pool<MySql>) -> Result<()> {
+    pub async fn save(&mut self, db: &Pool<MySql>) -> Result<()> {
         sqlx::query!(
             "UPDATE sets SET quality = ?, quantity = ?, set_type = ? WHERE id = ?",
             self.quality,
@@ -101,6 +101,8 @@ impl Set {
         .execute(db)
         .await
         .map_err(error::from_sqlx_error)?;
+
+        self.updated_at = Utc::now();
 
         Ok(())
     }

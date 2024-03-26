@@ -98,6 +98,7 @@ impl Workout {
         .map_err(error::from_sqlx_error)?;
 
         self.status = WorkoutStatus::Done;
+        self.updated_at = Utc::now();
 
         Ok(())
     }
