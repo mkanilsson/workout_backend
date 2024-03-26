@@ -14,7 +14,7 @@ impl From<String> for WorkoutStatus {
         match value.as_str() {
             "ongoing" => Self::Ongoing,
             "done" => Self::Done,
-            _ => panic!("Unknown ExerciseType: {}", value),
+            _ => panic!("Unknown WorkoutStatus: {}", value),
         }
     }
 }
