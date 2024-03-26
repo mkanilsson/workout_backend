@@ -84,4 +84,20 @@ impl Exercise {
                 .map_err(error::from_sqlx_error)?
         )
     }
+
+    pub async fn save(&mut self, db: &Pool<MySql>) -> Result<()> {
+        sqlx::query!(
+            "UPDATE exercises SET name = ?, exercise_type = ? WHERE id = ?",
+            self.name,
+            self.exercise_type.to_string(),
+            self.id
+        )
+        .execute(db)
+        .await
+        .map_err(error::from_sqlx_error)?;
+
+        self.updated_at = Utc::now();
+
+        Ok(())
+    }
 }

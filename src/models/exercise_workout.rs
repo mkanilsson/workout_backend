@@ -54,6 +54,15 @@ impl ExerciseWorkout {
         .map_err(error::from_sqlx_error)?)
     }
 
+    pub async fn find_all_by_exercise_and_workout_id(db: &Pool<MySql>, exercise_id: String, workout_id: String) -> Result<Vec<Self>> {
+        Ok(
+            sqlx::query_as!(ExerciseWorkout, "SELECT * FROM exercise_workout WHERE exercise_id = ? AND workout_id = ?", exercise_id, workout_id)
+                .fetch_all(db)
+                .await
+                .map_err(error::from_sqlx_error)?
+        )
+    }
+
     pub async fn add_set(
         &self,
         db: &Pool<MySql>,

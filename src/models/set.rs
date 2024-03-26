@@ -81,9 +81,19 @@ impl Set {
 
     }
 
+    pub async fn find_all_by_exercise_workout_id(db: &Pool<MySql>, exercise_workout_id: String) -> Result<Vec<Self>> {
+        Ok(
+            sqlx::query_as!(Set, "SELECT * FROM sets WHERE exercise_workout_id = ? ORDER BY set_type ASC, created_at ASC", exercise_workout_id)
+                .fetch_all(db)
+                .await
+                .map_err(error::from_sqlx_error)?
+        )
+
+    }
+
     pub async fn find_all_by_user_id(db: &Pool<MySql>, user_id: String) -> Result<Vec<Self>> {
         Ok(
-            sqlx::query_as!(Set, "SELECT * FROM sets WHERE user_id = ?", user_id)
+            sqlx::query_as!(Set, "SELECT * FROM sets WHERE user_id = ? ORDER BY set_type ASC, created_at ASC", user_id)
                 .fetch_all(db)
                 .await
                 .map_err(error::from_sqlx_error)?
