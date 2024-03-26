@@ -1,7 +1,10 @@
+use std::sync::RwLockWriteGuard;
+
 use axum::routing::{get, put};
 use axum::{extract::State, http::StatusCode, middleware, routing::post, Json, Router};
 
 use crate::dtos::exercise_workout::CreateExerciseWorkoutPayload;
+use crate::dtos::workout::{DetailedExercise, DetailedWorkout};
 use crate::error::Error;
 use crate::middlewares::auth::require_auth;
 use crate::models::exercise_workout::ExerciseWorkout;
@@ -44,17 +47,44 @@ async fn get_done_workouts(
 async fn get_current_workout(
     State(state): State<ApiState>,
     ctx: Ctx,
-) -> Result<(StatusCode, Json<Workout>)> {
+) -> Result<(StatusCode, Json<DetailedWorkout>)> {
     let workout = ctx.user().current_workout(&state.db).await?;
 
-    if let Some(workout) = workout {
-        Ok((StatusCode::OK, Json(workout)))
-    } else {
-        Err(Error::NotFound(format!(
+    let Some(workout) = workout else {
+        return Err(Error::NotFound(format!(
             "Current workout for user {}",
             ctx.user().id
         )))
+    };
+
+    let exercise_workouts = workout.exercise_workouts(&state.db).await?;
+    let mut detailed_exercises = vec![];
+
+    for ew in exercise_workouts {
+        let sets = ew.sets(&state.db).await?;
+        let exercise = ew.exercise(&state.db).await?;
+
+        let de = DetailedExercise {
+            id: exercise.id.clone(),
+            name: exercise.name.clone(),
+            exercise_type: exercise.exercise_type,
+            created_at: exercise.created_at,
+            updated_at: exercise.updated_at,
+            sets,
+        };
+        detailed_exercises.push(de);
     }
+
+    Ok((
+        StatusCode::OK,
+        Json(DetailedWorkout {
+            id: workout.id.clone(),
+            status: workout.status,
+            created_at: workout.created_at,
+            updated_at: workout.updated_at,
+            exercises: detailed_exercises,
+        }),
+    ))
 }
 
 async fn finish_current_workout(

@@ -3,6 +3,8 @@ use sqlx::{MySql, Pool};
 
 use crate::error::{self, Error, Result};
 
+use super::{exercise::Exercise, exercise_workout::ExerciseWorkout};
+
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub enum WorkoutStatus {
     Ongoing,
@@ -98,5 +100,12 @@ impl Workout {
         self.status = WorkoutStatus::Done;
 
         Ok(())
+    }
+
+    pub async fn exercise_workouts(&self, db: &Pool<MySql>) -> Result<Vec<ExerciseWorkout>> {
+        Ok(sqlx::query_as!(ExerciseWorkout, "SELECT * FROM exercise_workout WHERE workout_id = ?", self.id)
+            .fetch_all(db)
+            .await
+            .map_err(error::from_sqlx_error)?)
     }
 }

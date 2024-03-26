@@ -3,7 +3,10 @@ use sqlx::{MySql, Pool};
 
 use crate::error::{self, Error, Result};
 
-use super::set::{Set, SetType};
+use super::{
+    exercise::Exercise,
+    set::{Set, SetType},
+};
 
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct ExerciseWorkout {
@@ -41,19 +44,50 @@ impl ExerciseWorkout {
     }
 
     pub async fn find_by_id(db: &Pool<MySql>, id: String) -> Result<Option<Self>> {
-        Ok(
-            sqlx::query_as!(ExerciseWorkout, "SELECT * FROM exercise_workout WHERE id = ? LIMIT 1", id)
-                .fetch_optional(db)
-                .await
-                .map_err(error::from_sqlx_error)?
+        Ok(sqlx::query_as!(
+            ExerciseWorkout,
+            "SELECT * FROM exercise_workout WHERE id = ? LIMIT 1",
+            id
         )
+        .fetch_optional(db)
+        .await
+        .map_err(error::from_sqlx_error)?)
     }
 
-    pub async fn add_set(&self, db: &Pool<MySql>,
+    pub async fn add_set(
+        &self,
+        db: &Pool<MySql>,
         quality: f32,
         quantity: f32,
         set_type: SetType,
     ) -> Result<Set> {
-        Set::create(db, self.user_id.clone(), self.id.clone(), quality, quantity, set_type).await
+        Set::create(
+            db,
+            self.user_id.clone(),
+            self.id.clone(),
+            quality,
+            quantity,
+            set_type,
+        )
+        .await
+    }
+
+    pub async fn exercise(&self, db: &Pool<MySql>) -> Result<Exercise> {
+        Ok(Exercise::find_by_id(db, self.exercise_id.clone())
+            .await?
+            .ok_or(Error::WTF(
+                "ExerciseWorkout exists but referenced exercise doesn't".into(),
+            ))?)
+    }
+
+    pub async fn sets(&self, db: &Pool<MySql>) -> Result<Vec<Set>> {
+        Ok(sqlx::query_as!(
+            Set,
+            "SELECT * FROM sets WHERE exercise_workout_id = ? ORDER BY set_type ASC, created_at ASC",
+            self.id
+        )
+        .fetch_all(db)
+        .await
+        .map_err(error::from_sqlx_error)?)
     }
 }
