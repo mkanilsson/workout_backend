@@ -3,6 +3,8 @@ use sqlx::{MySql, Pool};
 
 use crate::error::{self, Error, Result};
 
+use super::set::{Set, SetType};
+
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct ExerciseWorkout {
     pub id: String,
@@ -45,5 +47,13 @@ impl ExerciseWorkout {
                 .await
                 .map_err(error::from_sqlx_error)?
         )
+    }
+
+    pub async fn add_set(&self, db: &Pool<MySql>,
+        quality: f32,
+        quantity: f32,
+        set_type: SetType,
+    ) -> Result<Set> {
+        Set::create(db, self.user_id.clone(), self.id.clone(), quality, quantity, set_type).await
     }
 }
