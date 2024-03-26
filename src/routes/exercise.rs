@@ -1,5 +1,5 @@
 use axum::extract::Path;
-use axum::routing::{get, put};
+use axum::routing::{delete, get, put};
 use axum::{
     extract::State,
     http::StatusCode,
@@ -24,6 +24,7 @@ pub fn router(state: ApiState) -> Router {
         .route("/api/exercises", get(get_exercises))
         .route("/api/exercises/:id", put(update_exercise))
         .route("/api/exercises/:id/history", get(get_exercise_history))
+        .route("/api/exercises/:id", delete(delete_exercise))
         .route_layer(middleware::from_fn_with_state(state.clone(), require_auth))
         .with_state(state)
 }
@@ -135,5 +136,32 @@ async fn get_exercise_history(
     Ok((
         StatusCode::OK,
         Json(all),
+    ))
+}
+
+async fn delete_exercise(
+    State(state): State<ApiState>,
+    ctx: Ctx,
+    Path((id,)): Path<(String,)>,
+) -> Result<(StatusCode, Json<Exercise>)> {
+    let user = ctx.user();
+    let exercise = Exercise::find_by_id(&state.db, id.clone()).await?;
+
+    let Some(mut exercise) = exercise else {
+        return Err(Error::NotFound(format!(
+            "Exercise with id {}",
+            id
+        )));
+    };
+
+    if exercise.user_id != user.id {
+        return Err(Error::AuthError(AuthError::NotYourItem));
+    }
+
+    exercise.delete(&state.db).await?;
+
+    Ok((
+        StatusCode::OK,
+        Json(exercise),
     ))
 }

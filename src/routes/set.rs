@@ -1,5 +1,5 @@
 use axum::extract::Path;
-use axum::routing::put;
+use axum::routing::{delete, put};
 use axum::{extract::State, http::StatusCode, middleware, routing::post, Json, Router};
 
 use crate::dtos::set::{CreateSetPayload, UpdateSetPayload};
@@ -12,6 +12,7 @@ pub fn router(state: ApiState) -> Router {
     Router::new()
         .route("/api/sets", post(create_set))
         .route("/api/sets/:id", put(update_set))
+        .route("/api/sets/:id", delete(delete_set))
         .route_layer(middleware::from_fn_with_state(state.clone(), require_auth))
         .with_state(state)
 }
@@ -57,6 +58,34 @@ async fn update_set(
     set.set_type = payload.set_type;
 
     set.save(&state.db).await?;
+
+    Ok((
+        StatusCode::OK,
+        Json(set),
+    ))
+}
+
+async fn delete_set(
+    State(state): State<ApiState>,
+    ctx: Ctx,
+    Path((id,)): Path<(String,)>,
+) -> Result<(StatusCode, Json<Set>)> {
+    let user = ctx.user();
+
+    let set = Set::find_by_id(&state.db, id.clone()).await?;
+
+    let Some(mut set) = set else {
+        return Err(Error::NotFound(format!(
+            "Set with id {}",
+            id
+        )));
+    };
+
+    if set.user_id != user.id {
+        return Err(Error::AuthError(AuthError::NotYourItem));
+    }
+
+    set.delete(&state.db).await?;
 
     Ok((
         StatusCode::OK,

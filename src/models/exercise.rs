@@ -100,4 +100,16 @@ impl Exercise {
 
         Ok(())
     }
+
+    pub async fn delete(&mut self, db: &Pool<MySql>) -> Result<()> {
+        sqlx::query!(
+            "DELETE FROM exercises WHERE id = ?",
+            self.id
+        )
+        .execute(db)
+        .await
+        .map_err(error::from_sqlx_error)?;
+
+        Ok(())
+    }
 }

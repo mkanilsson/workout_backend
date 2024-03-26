@@ -116,4 +116,16 @@ impl Set {
 
         Ok(())
     }
+
+    pub async fn delete(&mut self, db: &Pool<MySql>) -> Result<()> {
+        sqlx::query!(
+            "DELETE FROM sets WHERE id = ?",
+            self.id
+        )
+        .execute(db)
+        .await
+        .map_err(error::from_sqlx_error)?;
+
+        Ok(())
+    }
 }

@@ -3,7 +3,7 @@ use sqlx::{MySql, Pool};
 
 use crate::error::{self, Error, Result};
 
-use super::{exercise::Exercise, exercise_workout::ExerciseWorkout};
+use super::exercise_workout::ExerciseWorkout;
 
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub enum WorkoutStatus {
@@ -117,5 +117,17 @@ impl Workout {
             .await
             .map_err(error::from_sqlx_error)?
         )
+    }
+
+    pub async fn delete(&mut self, db: &Pool<MySql>) -> Result<()> {
+        sqlx::query!(
+            "DELETE FROM workout WHERE id = ?",
+            self.id
+        )
+        .execute(db)
+        .await
+        .map_err(error::from_sqlx_error)?;
+
+        Ok(())
     }
 }
