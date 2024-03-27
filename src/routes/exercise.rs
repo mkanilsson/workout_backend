@@ -13,6 +13,7 @@ use crate::error::{AuthError, Error};
 use crate::models::exercise_workout::ExerciseWorkout;
 use crate::models::set::Set;
 use crate::models::workout::Workout;
+use crate::response::Response;
 use crate::{
     ctx::Ctx, dtos::exercise::CreateExercisePayload, error::Result, models::exercise::Exercise, ApiState
 };
@@ -33,26 +34,26 @@ async fn create_exercise(
     State(state): State<ApiState>,
     ctx: Ctx,
     Json(payload): Json<CreateExercisePayload>,
-) -> Result<(StatusCode, Json<Exercise>)> {
+) -> Result<(StatusCode, Json<Response<Exercise>>)> {
     let user = ctx.user().clone();
 
     let exercice = Exercise::create(&state.db, user.id, payload.name, payload.exercise_type).await?;
 
     Ok((
         StatusCode::CREATED,
-        Json(exercice),
+        Json(Response::success(exercice)),
     ))
 }
 
 async fn get_exercises(
     State(state): State<ApiState>,
     ctx: Ctx,
-) -> Result<(StatusCode, Json<Vec<Exercise>>)> {
+) -> Result<(StatusCode, Json<Response<Vec<Exercise>>>)> {
     let exercises = ctx.user().exercises(&state.db).await?;
 
     Ok((
         StatusCode::CREATED,
-        Json(exercises),
+        Json(Response::success(exercises)),
     ))
 }
 
@@ -61,7 +62,7 @@ async fn update_exercise(
     ctx: Ctx,
     Path((id,)): Path<(String,)>,
     Json(payload): Json<CreateExercisePayload>,
-) -> Result<(StatusCode, Json<Exercise>)> {
+) -> Result<(StatusCode, Json<Response<Exercise>>)> {
     let user = ctx.user();
     let exercise = Exercise::find_by_id(&state.db, id.clone()).await?;
 
@@ -83,7 +84,7 @@ async fn update_exercise(
 
     Ok((
         StatusCode::OK,
-        Json(exercise),
+        Json(Response::success(exercise)),
     ))
 }
 
@@ -91,7 +92,7 @@ async fn get_exercise_history(
     State(state): State<ApiState>,
     ctx: Ctx,
     Path((id,)): Path<(String,)>,
-) -> Result<(StatusCode, Json<Vec<ExerciseHistoryPayload>>)> {
+) -> Result<(StatusCode, Json<Response<Vec<ExerciseHistoryPayload>>>)> {
     let user = ctx.user();
     // NOTE: This is pretty pointless but i like verifying the user before
     //       fetching all exercise_workouts because if the the list
@@ -135,7 +136,7 @@ async fn get_exercise_history(
 
     Ok((
         StatusCode::OK,
-        Json(all),
+        Json(Response::success(all)),
     ))
 }
 
@@ -143,7 +144,7 @@ async fn delete_exercise(
     State(state): State<ApiState>,
     ctx: Ctx,
     Path((id,)): Path<(String,)>,
-) -> Result<(StatusCode, Json<Exercise>)> {
+) -> Result<(StatusCode, Json<Response<Exercise>>)> {
     let user = ctx.user();
     let exercise = Exercise::find_by_id(&state.db, id.clone()).await?;
 
@@ -162,6 +163,6 @@ async fn delete_exercise(
 
     Ok((
         StatusCode::OK,
-        Json(exercise),
+        Json(Response::success(exercise)),
     ))
 }

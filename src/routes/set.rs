@@ -6,6 +6,7 @@ use crate::dtos::set::{CreateSetPayload, UpdateSetPayload};
 use crate::error::{AuthError, Error};
 use crate::middlewares::auth::require_auth;
 use crate::models::set::Set;
+use crate::response::Response;
 use crate::{ctx::Ctx, error::Result, ApiState};
 
 pub fn router(state: ApiState) -> Router {
@@ -21,14 +22,14 @@ async fn create_set(
     State(state): State<ApiState>,
     ctx: Ctx,
     Json(payload): Json<CreateSetPayload>,
-) -> Result<(StatusCode, Json<Set>)> {
+) -> Result<(StatusCode, Json<Response<Set>>)> {
     let user = ctx.user();
 
     let set = Set::create(&state.db, user.id.clone(), payload.exercise_workout_id, payload.quality, payload.quantity, payload.set_type).await?;
 
     Ok((
         StatusCode::CREATED,
-        Json(set),
+        Json(Response::success(set)),
     ))
 }
 
@@ -37,7 +38,7 @@ async fn update_set(
     ctx: Ctx,
     Path((id,)): Path<(String,)>,
     Json(payload): Json<UpdateSetPayload>,
-) -> Result<(StatusCode, Json<Set>)> {
+) -> Result<(StatusCode, Json<Response<Set>>)> {
     let user = ctx.user();
 
     let set = Set::find_by_id(&state.db, id.clone()).await?;
@@ -61,7 +62,7 @@ async fn update_set(
 
     Ok((
         StatusCode::OK,
-        Json(set),
+        Json(Response::success(set)),
     ))
 }
 
@@ -69,7 +70,7 @@ async fn delete_set(
     State(state): State<ApiState>,
     ctx: Ctx,
     Path((id,)): Path<(String,)>,
-) -> Result<(StatusCode, Json<Set>)> {
+) -> Result<(StatusCode, Json<Response<Set>>)> {
     let user = ctx.user();
 
     let set = Set::find_by_id(&state.db, id.clone()).await?;
@@ -89,6 +90,6 @@ async fn delete_set(
 
     Ok((
         StatusCode::OK,
-        Json(set),
+        Json(Response::success(set)),
     ))
 }

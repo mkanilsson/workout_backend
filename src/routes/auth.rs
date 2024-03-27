@@ -8,12 +8,7 @@ use axum::{
 use serde_json::{json, Value};
 
 use crate::{
-    ctx::Ctx,
-    dtos::auth::{CreateUserPayload, LoginPayload, LoginResponse, UserResponse},
-    error::{AuthError, Error, Result},
-    helpers::security::{hash_password, verify_password},
-    models::user::User,
-    ApiState,
+    ctx::Ctx, dtos::auth::{CreateUserPayload, LoginPayload, LoginResponse, UserResponse}, error::{AuthError, Error, Result}, helpers::security::{hash_password, verify_password}, models::user::User, response::Response, ApiState
 };
 use crate::middlewares::auth::require_auth;
 
@@ -30,7 +25,7 @@ pub fn router(state: ApiState) -> Router {
 async fn register(
     State(state): State<ApiState>,
     Json(payload): Json<CreateUserPayload>,
-) -> Result<(StatusCode, Json<UserResponse>)> {
+) -> Result<(StatusCode, Json<Response<UserResponse>>)> {
     if let Some(_) = User::find_by_email(&state.db, &payload.email).await? {
         return Err(Error::AuthError(AuthError::EmailAlreadyInUse(
             payload.email,
@@ -41,13 +36,13 @@ async fn register(
 
     let user = User::create(&state.db, payload.email, hashed_password).await?;
 
-    Ok((StatusCode::CREATED, Json(user.into())))
+    Ok((StatusCode::CREATED, Json(Response::success(user.into()))))
 }
 
 async fn login(
     State(state): State<ApiState>,
     Json(payload): Json<LoginPayload>,
-) -> Result<(StatusCode, Json<LoginResponse>)> {
+) -> Result<(StatusCode, Json<Response<LoginResponse>>)> {
     let user = User::find_by_email(&state.db, &payload.email)
         .await?
         .ok_or(Error::NotFound("User".to_string()))?;
@@ -55,10 +50,10 @@ async fn login(
     if verify_password(&payload.password, &user.password)? {
         Ok((
             StatusCode::CREATED,
-            Json(LoginResponse {
+            Json(Response::success(LoginResponse {
                 token: user.create_token(&state.db).await?.value,
                 user: user.into(),
-            }),
+            })),
         ))
     } else {
         Err(Error::AuthError(AuthError::LoginFailed))
@@ -68,17 +63,17 @@ async fn login(
 async fn refresh_token(
     State(state): State<ApiState>,
     ctx: Ctx,
-) -> Result<(StatusCode, Json<LoginResponse>)> {
+) -> Result<(StatusCode, Json<Response<LoginResponse>>)> {
     let user = ctx.user().clone();
     let token = user.create_token(&state.db).await?.value;
     ctx.token().delete(&state.db).await?;
 
     Ok((
         StatusCode::CREATED,
-        Json(LoginResponse {
+        Json(Response::success(LoginResponse {
             token,
             user: user.into(),
-        }),
+        })),
     ))
 }
 
@@ -89,5 +84,5 @@ async fn logout(State(state): State<ApiState>, ctx: Ctx) -> Result<Json<Value>> 
         t.delete(&state.db).await?;
     }
 
-    Ok(Json(json!({ "message": "logged out" })))
+    Ok(Json(json!({ "status": "Success", "message": "logged out" })))
 }

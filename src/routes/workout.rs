@@ -7,6 +7,7 @@ use crate::dtos::workout::{DetailedExercise, DetailedWorkout};
 use crate::error::{AuthError, Error};
 use crate::middlewares::auth::require_auth;
 use crate::models::exercise_workout::ExerciseWorkout;
+use crate::response::Response;
 use crate::{ctx::Ctx, error::Result, models::workout::Workout, ApiState};
 
 pub fn router(state: ApiState) -> Router {
@@ -28,27 +29,27 @@ pub fn router(state: ApiState) -> Router {
 async fn create_workout(
     State(state): State<ApiState>,
     ctx: Ctx,
-) -> Result<(StatusCode, Json<Workout>)> {
+) -> Result<(StatusCode, Json<Response<Workout>>)> {
     let user = ctx.user().clone();
 
     let workout = Workout::create(&state.db, user.id).await?;
 
-    Ok((StatusCode::CREATED, Json(workout)))
+    Ok((StatusCode::CREATED, Json(Response::success(workout))))
 }
 
 async fn get_done_workouts(
     State(state): State<ApiState>,
     ctx: Ctx,
-) -> Result<(StatusCode, Json<Vec<Workout>>)> {
+) -> Result<(StatusCode, Json<Response<Vec<Workout>>>)> {
     let workouts = ctx.user().workouts(&state.db).await?;
 
-    Ok((StatusCode::OK, Json(workouts)))
+    Ok((StatusCode::OK, Json(Response::success(workouts))))
 }
 
 async fn get_current_workout(
     State(state): State<ApiState>,
     ctx: Ctx,
-) -> Result<(StatusCode, Json<DetailedWorkout>)> {
+) -> Result<(StatusCode, Json<Response<DetailedWorkout>>)> {
     let workout = ctx.user().current_workout(&state.db).await?;
 
     let Some(workout) = workout else {
@@ -78,25 +79,25 @@ async fn get_current_workout(
 
     Ok((
         StatusCode::OK,
-        Json(DetailedWorkout {
+        Json(Response::success(DetailedWorkout {
             id: workout.id.clone(),
             status: workout.status,
             created_at: workout.created_at,
             updated_at: workout.updated_at,
             exercises: detailed_exercises,
-        }),
+        })),
     ))
 }
 
 async fn finish_current_workout(
     State(state): State<ApiState>,
     ctx: Ctx,
-) -> Result<(StatusCode, Json<Workout>)> {
+) -> Result<(StatusCode, Json<Response<Workout>>)> {
     let workout = ctx.user().current_workout(&state.db).await?;
 
     if let Some(mut workout) = workout {
         workout.finish(&state.db).await?;
-        Ok((StatusCode::OK, Json(workout)))
+        Ok((StatusCode::OK, Json(Response::success(workout))))
     } else {
         Err(Error::NotFound(format!(
             "Current workout for user {}",
@@ -109,7 +110,7 @@ async fn add_exercise_to_current_workout(
     State(state): State<ApiState>,
     ctx: Ctx,
     Json(payload): Json<CreateExerciseWorkoutPayload>,
-) -> Result<(StatusCode, Json<ExerciseWorkout>)> {
+) -> Result<(StatusCode, Json<Response<ExerciseWorkout>>)> {
     let user = ctx.user();
     let workout = user.current_workout(&state.db).await?;
 
@@ -117,7 +118,7 @@ async fn add_exercise_to_current_workout(
         let exercise_workout =
             ExerciseWorkout::create(&state.db, user.id.clone(), payload.exercise_id, workout.id)
                 .await?;
-        Ok((StatusCode::CREATED, Json(exercise_workout)))
+        Ok((StatusCode::CREATED, Json(Response::success(exercise_workout))))
     } else {
         Err(Error::NotFound(format!(
             "Current workout for user {}",
@@ -130,7 +131,7 @@ async fn delete_workout(
     State(state): State<ApiState>,
     ctx: Ctx,
     Path((id,)): Path<(String,)>,
-) -> Result<(StatusCode, Json<Workout>)> {
+) -> Result<(StatusCode, Json<Response<Workout>>)> {
     let user = ctx.user();
     let workout = Workout::find_by_id(&state.db, id.clone()).await?;
 
@@ -149,6 +150,6 @@ async fn delete_workout(
 
     Ok((
         StatusCode::OK,
-        Json(workout),
+        Json(Response::success(workout)),
     ))
 }

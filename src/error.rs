@@ -1,6 +1,8 @@
 use axum::{http::StatusCode, response::IntoResponse, Json};
 use serde_json::json;
 
+use crate::response::Response;
+
 pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug)]
@@ -56,7 +58,7 @@ impl IntoResponse for Error {
 
         (
             self.status_code(),
-            Json(json!({ "message": self.message() })),
+            Json(Response::<()>::failure(&self.message())),
         )
             .into_response()
     }
