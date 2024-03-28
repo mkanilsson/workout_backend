@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "INSERT INTO tokens(id, user_id, value) VALUE (?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "02973e1f717298aa8e6676b2edd1004a1372cc80ae117e7428d7e765aa362e40"
+}

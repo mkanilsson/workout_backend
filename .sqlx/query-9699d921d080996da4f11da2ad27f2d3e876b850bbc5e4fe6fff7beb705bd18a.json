@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "UPDATE workout SET status = 'done' WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "9699d921d080996da4f11da2ad27f2d3e876b850bbc5e4fe6fff7beb705bd18a"
+}

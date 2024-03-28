@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "UPDATE sets SET quality = ?, quantity = ?, set_type = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "d8128f8682e82971cd918d27f156e657a370642f393753986ca9ff1671f2f117"
+}

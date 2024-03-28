@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "INSERT INTO sets(id, user_id, exercise_workout_id, quality, quantity, set_type) VALUE (?, ?, ?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 6
+    },
+    "nullable": []
+  },
+  "hash": "49c3b169e7d26aa25a89dc7145ed2f69a70cecee55f08457f8aa16a85befd81a"
+}

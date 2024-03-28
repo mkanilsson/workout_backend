@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "INSERT INTO workout(id, user_id) VALUE (?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "0d0cbb3663f8da91123883b233d2c06bd9c4b546fa5ed36f6335134c3cee5cbd"
+}

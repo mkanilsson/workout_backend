@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "UPDATE exercises SET name = ?, exercise_type = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "bddd578837a7cafafda9389cacf47c9384cfe3dba49dd93a668a951371eef263"
+}
