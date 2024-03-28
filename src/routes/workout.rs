@@ -1,5 +1,5 @@
 use axum::extract::Path;
-use axum::routing::{get, put};
+use axum::routing::{delete, get, put};
 use axum::{extract::State, http::StatusCode, middleware, routing::post, Json, Router};
 
 use crate::dtos::exercise_workout::CreateExerciseWorkoutPayload;
@@ -20,6 +20,10 @@ pub fn router(state: ApiState) -> Router {
         .route(
             "/api/workouts/current/exercises",
             post(add_exercise_to_current_workout),
+        )
+        .route(
+            "/api/workouts/current/exercises/:exercise_workout_id",
+            delete(delete_exercise_to_current_workout),
         )
         .route("/api/workouts/:id", put(delete_workout))
         .route_layer(middleware::from_fn_with_state(state.clone(), require_auth))
@@ -70,6 +74,7 @@ async fn get_current_workout(
             id: exercise.id.clone(),
             name: exercise.name.clone(),
             exercise_type: exercise.exercise_type,
+            exercise_workout_id: ew.id.clone(),
             created_at: exercise.created_at,
             updated_at: exercise.updated_at,
             sets,
@@ -151,5 +156,32 @@ async fn delete_workout(
     Ok((
         StatusCode::OK,
         Json(Response::success(workout)),
+    ))
+}
+
+async fn delete_exercise_to_current_workout(
+    State(state): State<ApiState>,
+    ctx: Ctx,
+    Path((exercise_workout_id,)): Path<(String,)>,
+) -> Result<(StatusCode, Json<Response<ExerciseWorkout>>)> {
+    let user = ctx.user();
+    let exercise_workout = ExerciseWorkout::find_by_id(&state.db, exercise_workout_id.clone()).await?;
+
+    let Some(mut exercise_workout) = exercise_workout else {
+        return Err(Error::NotFound(format!(
+            "ExerciseWorkout with id {}",
+            exercise_workout_id.clone()
+        )));
+    };
+
+    if exercise_workout.user_id != user.id {
+        return Err(Error::AuthError(AuthError::NotYourItem));
+    }
+
+    exercise_workout.delete(&state.db).await?;
+
+    Ok((
+        StatusCode::OK,
+        Json(Response::success(exercise_workout)),
     ))
 }

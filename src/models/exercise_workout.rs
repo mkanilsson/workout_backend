@@ -99,4 +99,16 @@ impl ExerciseWorkout {
         .await
         .map_err(error::from_sqlx_error)?)
     }
+
+    pub async fn delete(&mut self, db: &Pool<MySql>) -> Result<()> {
+        sqlx::query!(
+            "DELETE FROM exercise_workout WHERE id = ?",
+            self.id
+        )
+        .execute(db)
+        .await
+        .map_err(error::from_sqlx_error)?;
+
+        Ok(())
+    }
 }

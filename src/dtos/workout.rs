@@ -17,6 +17,7 @@ pub struct DetailedExercise {
     pub id: String,
     pub name: String,
     pub exercise_type: ExerciseType,
+    pub exercise_workout_id: String,
 
     pub created_at: chrono::DateTime<Utc>,
     pub updated_at: chrono::DateTime<Utc>,
