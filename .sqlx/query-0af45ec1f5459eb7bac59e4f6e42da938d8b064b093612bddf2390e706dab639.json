@@ -1,6 +1,6 @@
 {
   "db_name": "MySQL",
-  "query": "SELECT * FROM workout WHERE id IN (SELECT workout_id FROM exercise_workout WHERE exercise_id = ?) ORDER BY created_at ASC",
+  "query": "SELECT * FROM workout WHERE id IN (SELECT workout_id FROM exercise_workout WHERE exercise_id = ?) AND status <> 'ongoing' ORDER BY created_at ASC",
   "describe": {
     "columns": [
       {
@@ -65,5 +65,5 @@
       false
     ]
   },
-  "hash": "b3ff65df644cb96558a6199313d2c828f7ab1bacf7d7d78b8d8147da62f2503a"
+  "hash": "0af45ec1f5459eb7bac59e4f6e42da938d8b064b093612bddf2390e706dab639"
 }

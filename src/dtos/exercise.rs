@@ -12,6 +12,7 @@ pub struct CreateExercisePayload {
 pub struct ExerciseHistoryPayload {
     pub workout_id: String,
     pub workout_date: chrono::DateTime<Utc>,
+    pub exercise_type: ExerciseType,
     pub groups: Vec<ExerciseGroupHistoryPayload>,
 }
 

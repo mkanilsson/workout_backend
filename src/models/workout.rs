@@ -112,7 +112,7 @@ impl Workout {
 
     pub async fn find_all_where_exercised_is_used(db: &Pool<MySql>, exercise_id: String) -> Result<Vec<Workout>> {
         Ok(
-            sqlx::query_as!(Workout, "SELECT * FROM workout WHERE id IN (SELECT workout_id FROM exercise_workout WHERE exercise_id = ?) ORDER BY created_at ASC", exercise_id)
+            sqlx::query_as!(Workout, "SELECT * FROM workout WHERE id IN (SELECT workout_id FROM exercise_workout WHERE exercise_id = ?) AND status <> 'ongoing' ORDER BY created_at ASC", exercise_id)
             .fetch_all(db)
             .await
             .map_err(error::from_sqlx_error)?

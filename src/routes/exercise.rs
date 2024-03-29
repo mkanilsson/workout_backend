@@ -130,6 +130,7 @@ async fn get_exercise_history(
         all.push(ExerciseHistoryPayload {
             workout_id: w.id.clone(),
             workout_date: w.created_at,
+            exercise_type: exercise.exercise_type.clone(),
             groups,
         })
     }
