@@ -1,6 +1,6 @@
 {
   "db_name": "MySQL",
-  "query": "SELECT * FROM exercises WHERE user_id = ?",
+  "query": "SELECT * FROM exercise_workout WHERE workout_id = ? ORDER BY created_at DESC",
   "describe": {
     "columns": [
       {
@@ -25,22 +25,22 @@
       },
       {
         "ordinal": 2,
-        "name": "name",
+        "name": "exercise_id",
         "type_info": {
           "type": "VarString",
-          "flags": "NOT_NULL | NO_DEFAULT_VALUE",
+          "flags": "NOT_NULL | MULTIPLE_KEY | NO_DEFAULT_VALUE",
           "char_set": 224,
-          "max_size": 256
+          "max_size": 144
         }
       },
       {
         "ordinal": 3,
-        "name": "exercise_type",
+        "name": "workout_id",
         "type_info": {
-          "type": "String",
-          "flags": "NOT_NULL | ENUM | NO_DEFAULT_VALUE",
+          "type": "VarString",
+          "flags": "NOT_NULL | MULTIPLE_KEY | NO_DEFAULT_VALUE",
           "char_set": 224,
-          "max_size": 72
+          "max_size": 144
         }
       },
       {
@@ -76,5 +76,5 @@
       false
     ]
   },
-  "hash": "b19a83f57110760577d7e7e7f3c891602aa445688b5f3df8a67920576d181163"
+  "hash": "f4e191ffd8ea8ab5ae5e7fbb77e6e7717f7fe9db8ed7b2a27f1ced85bb2dc6e5"
 }
