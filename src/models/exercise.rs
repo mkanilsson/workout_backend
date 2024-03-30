@@ -78,7 +78,7 @@ impl Exercise {
 
     pub async fn find_all_by_user_id(db: &Pool<MySql>, user_id: String) -> Result<Vec<Self>> {
         Ok(
-            sqlx::query_as!(Exercise, "SELECT * FROM exercises WHERE user_id = ?", user_id)
+            sqlx::query_as!(Exercise, "SELECT * FROM exercises WHERE user_id = ? ORDER BY name", user_id)
                 .fetch_all(db)
                 .await
                 .map_err(error::from_sqlx_error)?
