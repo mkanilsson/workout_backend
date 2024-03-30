@@ -104,7 +104,7 @@ impl Workout {
     }
 
     pub async fn exercise_workouts(&self, db: &Pool<MySql>) -> Result<Vec<ExerciseWorkout>> {
-        Ok(sqlx::query_as!(ExerciseWorkout, "SELECT * FROM exercise_workout WHERE workout_id = ?", self.id)
+        Ok(sqlx::query_as!(ExerciseWorkout, "SELECT * FROM exercise_workout WHERE workout_id = ? ORDER BY created_at DESC", self.id)
             .fetch_all(db)
             .await
             .map_err(error::from_sqlx_error)?)
