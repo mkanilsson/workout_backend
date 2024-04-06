@@ -1,6 +1,6 @@
 {
   "db_name": "MySQL",
-  "query": "SELECT * FROM tokens WHERE id = ? LIMIT 1",
+  "query": "SELECT * FROM tokens WHERE id = ? AND created_at > (NOW() - INTERVAL 1 WEEK) LIMIT 1",
   "describe": {
     "columns": [
       {
@@ -65,5 +65,5 @@
       false
     ]
   },
-  "hash": "7f6b27d737b42f11600e8283db7317288ce108a32796b10869e0ebe153cbc4f2"
+  "hash": "24b6a829d599073f3436685c284b413156491394bcf2f62397db6c8123285ae6"
 }

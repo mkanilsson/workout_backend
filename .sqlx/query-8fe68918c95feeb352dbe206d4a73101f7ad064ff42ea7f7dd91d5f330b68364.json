@@ -1,0 +1,12 @@
+{
+  "db_name": "MySQL",
+  "query": "DELETE FROM tokens WHERE created_at > (NOW() - INTERVAL 1 WEEK)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "8fe68918c95feeb352dbe206d4a73101f7ad064ff42ea7f7dd91d5f330b68364"
+}
