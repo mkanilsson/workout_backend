@@ -78,7 +78,7 @@ impl Token {
 
     pub async fn delete_expired(db: &Pool<MySql>) -> Result<()> {
         sqlx::query!(
-            "DELETE FROM tokens WHERE created_at > (NOW() - INTERVAL 1 WEEK)",
+            "DELETE FROM tokens WHERE created_at < (NOW() - INTERVAL 1 WEEK)",
         )
         .execute(db)
         .await
