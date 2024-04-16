@@ -3,8 +3,9 @@ use sqlx::{MySql, Pool};
 
 use crate::error::{self, Error, Result};
 
-#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone, Default)]
 pub enum ExerciseType {
+    #[default]
     Static,
     DistanceOverTime,
     WeightOverAmount,

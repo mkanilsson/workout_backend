@@ -66,6 +66,7 @@ async fn main() {
         .merge(routes::workout::router(state.clone()))
         .merge(routes::set::router(state.clone()))
         .merge(routes::auth::router(state.clone()))
+        .merge(routes::target::router(state.clone()))
         .nest_service("/", get_service(ServeDir::new("./static")))
         .layer(CorsLayer::permissive());
 

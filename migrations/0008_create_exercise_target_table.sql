@@ -1,0 +1,8 @@
+CREATE TABLE exercise_target(
+  id VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
+  exercise_id VARCHAR(36) NOT NULL,
+  target_id VARCHAR(36) NOT NULL,
+
+  FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE,
+  FOREIGN KEY (target_id) REFERENCES targets(id) ON DELETE CASCADE
+);
